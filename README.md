@@ -15,4 +15,4 @@ Côté serveur, celui-ci est écrit en Ruby et suit le Protocol définit dans le
 
 N'importe quel client (écrit dans n'importe quel langage) peut directement intérargir avec le serveur, dès lors qu'il implémente lui aussi le Protocol.
 
-Retrouvez la procédure d'installation via l'adresse http://guillaume-sainthillier.github.io/dnc
+Retrouvez la procédure d'installation de l'application sur http://guillaume-sainthillier.github.io/dnc
