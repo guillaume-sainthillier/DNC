@@ -11,7 +11,7 @@ Le client permet de:
   - Ouvrir une conversation privée avec un membre connecté et disponible
   
 
-Côté serveur, celui-ci est écrit en Ruby et suit le Protocol définit dans le fichier Protocol.txt.<br />
+Côté serveur, celui-ci est écrit en Ruby et suit le Protocol définit dans le fichier Protocol.txt.
 
 N'importe quel client (écrit dans n'importe quel langage) peut directement intérargir avec le serveur, dès lors qu'il implémente lui aussi le Protocol.
 
