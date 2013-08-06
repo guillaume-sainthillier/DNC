@@ -1,7 +1,7 @@
-DNC
+Dog is Not a Cat
 ===
 
-Dog is Not a Cat est un logiciel de Messagerie Instantannée façon IRC.
+DNC est un logiciel de Messagerie Instantannée façon IRC.
 
 
 Le client permet de:
