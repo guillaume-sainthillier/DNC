@@ -1,7 +1,7 @@
 Dog is Not a Cat
 ===
 
-DNC est un logiciel de Messagerie Instantannée façon IRC.
+DNC est un logiciel de Messagerie Instantanée façon IRC.
 
 
 Le client permet de:
