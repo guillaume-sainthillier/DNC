@@ -1,0 +1,433 @@
+RFC BAILLAGOU - LENORMAND - PUCHOL - SAINTHILLIER
+
+1.Introduction
+
+Le système ici mis en place repose sur la connexion de clients sur un serveur 
+DNC via une connexion TCP, et permet aux différents utilisateurs de dialoguer
+via messagerie instantanée. Les utilisateurs, lors de la connexion, doivent 
+choisir un pseudonyme unique qui leur permettra d'être identifiés aux yeux
+des autres utilisateurs. Lors de la connexion au service DOG, les utilisateurs
+actuellement connectés sont notifiés de la connexion du nouvel utilisateur.
+Il en est de même lors de la déconnexion d'un utilisateur. Lorsqu'un client
+est connecté, plusieurs fonctionnalités lui sont offertes : il a tout d'abord
+la possibilité d'envoyer un simple message à tous les autres utilisateurs 
+connectés via le canal de discussion. Ensuite, il peut se mettre en mode "BUSY"
+ce qui causera qu'il ne recevra plus de messages pendant qu'il gardera ce
+statut. Également, chaque utilisateur a la possibilité de consulter la liste
+des utilisateurs actuellement en ligne. Aussi, chaque utilisateur peut à tout
+moment changer son pseudonyme à condition qu'il ne soit pas pris par un autre
+utilisateur actuellement connecté. Enfin, un utilisateur peut engager une 
+conversation privée avec un autre utilsateur et a la possibilité d'échanger 
+différents types de fichiers avec lui.
+
+
+2.Opérations de base
+
+D’abord, l’hôte serveur lance le service DOG en écoutant le port TCP 8000.
+
+Les commandes DOG sont des mots-clés avec la possibilité d'y ajouter des arguments pour certaines d'entre elles.
+
+Les réponses DOG sont des indicateurs d'état pouvant etre suivi d'informations supplémentaires.Il y a deux indicateurs d’état : positif (" +OK ") et négatif (" -ERR ").
+
+Les envois de messages Server où un @ est spécifié avec en paramètre un nom
+d'utilisateur (ou @all) indique le(s) destinataire(s) du message serveur.
+Ex : S @C1 : +OK envoie le message +OK à C1.
+	 S @all : "C1 s'est déconnecté" //notifie les utilisateurs que C1 s'est 
+	 déconnecté.
+
+
+
+3.L’état AUTORISATION (AUTHORIZATION)
+
+
+Une fois que la connexion TCP a été ouverte par un client DOG,
+ le serveur DOG émet un message de bienvenue d’une ligne. 
+Ceci peut être n’importe qu’elle réponse positive. Un exemple pourrait être :
+
+S : +OK DOG server ready
+La session DOG est actuellement dans l’état AUTORISATION (AUTHORIZATION).
+ Le client doit à présent enregistrer son pseudo auprès du serveur DOG, pour
+ accéder au service, via la commande CONNECT <username>. 
+ Le client va ainsi pouvoir accéder au service à condition que le pseudonyme 
+ entré précédemment ne soit pas déjà actuellement utilisé.
+ Si c'est le cas, le serveur renvoie un message d'erreur indiquant le problème
+ à l'utilisateur, qui va devoir se reconnecter avec un pseudonyme différent.
+ Une fois que le serveur DOG a déterminé grâce à l’utilisation de la commande
+ de connexion 
+ que le client pouvait accéder au service de chat, il s'y trouve connecté.
+ 
+ Le client peut se déconnecter du service courant via la commande QUIT
+ Si le serveur ne clos pas la connexion, le client peut émettre soit une 
+ nouvelle 
+ commande d’authentification et recommencer, soit la commande QUIT (quitter).
+ 
+ 
+
+
+CONNECT
+
+Argument :
+<user>
+
+Restriction :
+-ne peut être donné que dans l’état AUTORISATION
+-Format du pseudo : Lettres alphabétique + chiffres ET/OU _-
+
+Réponses possibles :
++OK
+-ERR
+
+Exemples :
+C1 	: CONNECT <<<pseudoInvalide>>>
+S 	:  -ERR|NICK|margail|format de pseudo invalide
+C1 	: CONNECT margail 
+S 	:  +OK|CONNECT|margail  
+C1 	: CONNECT margail
+S 	:  -ERR|CONNECT|margail|vous êtes déjà connecté
+C2 	: CONNECT margail
+S 	:  -ERR|CONNECT|margail|pseudo déjà utilisé
+
+QUIT
+
+Arguments :
+aucun
+
+Restrictions :
+aucune
+
+Réponse possible :
+aucune
+
+Exemples :
+C 		: QUIT 
+S @all 	: NLEAVE|<username>
+
+
+
+5. L’état TRANSACTION
+
+L'utilisateur, une fois connecté au chat, se voit offert plusieurs commandes.
+Par exemple, il peut décider de ne plus recevoir de messages tout en restant
+ connecté. 
+Ainsi, avec la commande BUSY, ce dernier restera connecté mais ne sera plus
+ dérangé par les messages, commande détaillée ci-dessous :
+
+
+
+BUSY
+
+Arguments :
+aucun
+
+Restrictions :
+-ne peut être donné que dans l’état TRANSACTION
+
+Réponses possibles :
++OK
+-ERR
+
+Exemples :
+C		: BUSY 
+S 		: +OK|BUSY
+S @all 	: NBUSY|<username>
+C 		: BUSY
+S 		: -ERR|BUSY
+
+Pour sortir de ce mode busy, le client peut faire appel à la commande FREE
+pour à nouveau recevoir les messages des autres utilisateurs.
+
+
+
+
+FREE
+
+Arguments :
+aucun
+
+Restrictions :
+-ne peut être donné que dans l’état TRANSACTION
+
+Réponses possibles :
++OK
+-ERR
+
+Exemples :
+C 		: FREE
+S 		: -ERR|FREE
+C 		: BUSY
+S 		: +OK|BUSY
+S @all 	: NBUSY|<username>
+C 		: FREE
+S 		: +OK|FREE
+S @all 	: NFREE|<username>
+
+Après, le client a la possibilité de consulter la liste des différents
+utilisateurs connectés via la commande LIST.
+
+
+
+LIST
+
+Arguments :
+aucun
+
+Restrictions :
+-ne peut être donné que dans l’état TRANSACTION
+
+Réponses possibles :
+LIST|<user1>|<user2>
+
+Exemples :
+C : LIST 
+S : LIST|<user1>|<user2>
+
+
+
+
+LISTBUSY
+
+Arguments :
+aucun
+
+Restrictions :
+-ne peut être donné que dans l’état TRANSACTION
+
+Réponses possibles :
+LISTBUSY|<user1>|<user2>
+
+Exemples :
+C : LISTBUSY 
+S : LISTBUSY|<user1>|<user2>
+.
+
+Ensuite, le client a la possibilité de changer de pseudonyme sans se déconnecter, toujours à condition que ce dernier ne soit pas pris par un autre
+utilisateur connecté sur le service de chat via la commande NICK
+ 
+
+
+NICK
+
+Arguments :
+<newuser>
+
+Restrictions :
+-ne peut être donné que dans l’état TRANSACTION
+-Format du pseudo : Lettres alphabétique + chiffres ET/OU _-
+
+Réponses possibles :
++OK
+-ERR
+
+Exemples :
+C1 		: NICK margail 
+S @all	: NNICK|C1|margail
+S 		: +OK|NICK|margail  
+C2 		: NICK margail
+S 		: -ERR|NICK|margail|pseudo déjà utilisé
+C2 		: NICK <<<pseudoInvalide>>>
+S 		: -ERR|NICK|margail|format de pseudo invalide
+
+De plus, un client C1 peut rentrer en contact avec un utilisateur précis C2 et
+échanger des propos avec celui-ci qui seront cachés aux autres, et ainsi
+discuter de façon privée avec celui-ci. C1 va donc effectuer une demande auprès
+de C2 via la commande PRIV. Si l'utilisateur passé en paramètre n'est pas 
+connecté, le serveur renvoie -ERR. Si celui-ci est connecté mais refuse, le ser
+veur renvoie +NOK.
+
+
+
+PRIV
+
+Arguments :
+<user2>
+
+Restrictions :
+-ne peut être donné que dans l’état TRANSACTION
+
+Réponses possibles :
++OK
++NOK
+-ERR
+
+Exemples :
+C1 			: PRIV margail
+S @margail 	: PRIV|C1
+margail 	: ACCEPT|C1
+S 			: +OK|PRIV|margail
+
+C1 			: PRIV|margail
+S @margail 	: PRIV|C1
+margail 	: REFUSE|C1
+S 			: +NOK|NPRIV|margail
+
+C1 			: PRIV|absent
+S 			: -ERR|PRIV|margail
+
+Le second utilisateur concerné par la conversation privée doit alors répondre
+si oui ou non il souhaite engager cette discussion avec l'autre utilisateur
+ avec la commande ACCEPT et REFUSE. Si un fichier est ajouté en paramètre,
+ ces commandes seront utilisées pour donner ou pas son accord pour le transfert.
+ Se reférer à la commande SEND pour plus d'informations sur l'envoi d'un fichier.
+
+
+
+
+ACCEPT REFUSE
+
+Arguments :
+<user2>[|<fic>]
+
+Restrictions :
+
+-ne peut être donné que dans l’état TRANSACTION
+Réponses possibles :
++OK
+-ERR
+
+Exemples :
+C1 			: REFUSE|margail
+S 			: -ERR|REFUSE|margail|Pas de demande en cours
+
+C1 			: PRIV|margail
+S @margail 	: PRIV|C1
+margail 	: ACCEPT|C1
+S 			: +OK|PRIV|margail
+
+C1 			: PRIV|margail
+S @margail 	: PRIV|C1
+margail 	: REFUSE|C1
+S 			: +NOK|PRIV|margail
+
+Lorsqu'une conversation est engagée entre deux utilisateurs, ils ont la
+possibilité de mettre fin à cette conversation à l'aide de la commande END.
+
+
+
+
+END
+
+Arguments :
+user
+
+Restrictions :
+-ne peut être donné que dans l’état TRANSACTION
+
+Réponses possibles :
++OK
+-ERR
+
+Exemples :
+C1 		: END|C2
+S @C1 	: -ERR|END|C2|Conversation avec C2 non existante
+C1 		: PRIV|C2
+S @C2 	: PRIV|C1
+C2 		: ACCEPT|C1
+{...}
+C1 		: END|C2
+S @C1 	: +OK|END|C2
+
+C1 		: END|absent
+S @C1 	: -ERR|END|absent|Utilisateur déconnecté
+
+
+
+Afin d'entrer en contact avec les autres, un utilisateur va dialoguer avec
+eux par l'intermédiaire de messages textes envoyés par le chat. Si on ajoute
+un nom d'utilisateur en paramètre, le message précédent ne sera envoyé qu'à ce
+dernier si une conversation privée aura au préalable été engagée entre eux deux.
+
+
+
+MESS
+
+Arguments :
+<message> [user]
+
+Restrictions :
+-ne peut être donné que dans l’état TRANSACTION
+
+Réponses possibles :
++OK
+-ERR
+
+Exemples :
+C1 			: MESS|message
+S @C1 		: +OK|MESS|message
+S @all 		: NMESS|C1|message
+
+C1 			: MESS|message|margail
+S @C1 		: +OK|MESS|message|margail
+S @margail 	: NMP|C1|message
+
+
+C1 			: MESS|message|C2
+S @C1 		: -ERR|MESS|C2|Utilisateur déconnecté
+
+C1 			: MESS|message|C2
+S @C1 		: -ERR|MESS|C2|Utilisateur absent
+
+C1 			: MESS|message|C2
+S @C1 		: -ERR|MESS|C2|Conversation non engagée
+
+
+Chaque utilisateur a la possibilité, à chaque instant, d'envoyer un fichier
+à un autre utilisateur connecté via la commande SEND. L destinataire du fichier
+devra en premier lieu accepter ou refuser le transfert avant que celui-ci
+démarre.
+
+
+
+
+SEND
+
+Arguments :
+user fic
+
+Restrictions :
+-ne peut être donné que dans l’état TRANSACTION
+
+Réponses possibles :
++OK
+-ERR
+
+Exemples :
+C1 		: SEND|C2|fic1.txt
+S @C1 	: -ERR|SEND|C2|Utilisateur non connecté
+
+C1 		: SEND|C3|fic2.txt
+S @C1 	: -ERR|SEND|C2|fic2.txt n'existe pas
+
+C1 		: SEND|C3|fic3.txt
+S @C3 	: SEND|C1|fic3.txt
+C3 		: REFUSE|C1|fic3.txt
+S @C1 	: +NOK|REFUSE|C1|fic3.txt
+
+C1 		: SEND|C3|fic3.txt
+S @C3 	: SEND|C1|fic3.txt
+C3 		: ACCEPT|C1|fic3.txt
+S @C1 	: +NOK|ACCEPT|C1|fic3.txt
+
+
+L'utilisateur dispose de la commande HELP lui exposant toutes les commandes
+à sa disposition.
+ 
+
+
+HELP
+
+Argument :
+aucun
+
+Restriction :
+aucune
+
+Réponses possibles :
+HELP|<cmd1>|<cmd2>
+
+Exemples :
+C1 		: HELP
+S @C1 	: HELP|QUIT pour vous déconnecter|BUSY pour ne plus recevoir de messages|FREE pour en recevoir à nouveau|LIST pour savoir les utilisateurs connectésactuellement|NICK pour changer de pseudonyme|PRIV pour engager une
+conversation avec quelqu'un|et TRANS pour un transfert de fichier
+
+
+
