@@ -22,4 +22,4 @@ Côté serveur, celui-ci est écrit en Ruby et implémente le protocole définit
 N'importe quel client (écrit dans n'importe quel langage) peut directement intérargir avec le serveur, dès lors qu'il implémente lui aussi le protocole.
 
 
-Retrouvez la procédure d'installation de l'application sur http://guillaume-sainthillier.github.io/dnc
+Retrouvez la procédure d'installation de l'application sur http://guillaume-sainthillier.github.io/DNC
