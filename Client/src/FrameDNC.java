@@ -642,12 +642,12 @@ public class FrameDNC extends JFrame implements WindowListener,ActionListener, K
 	
 	private String getHTMLFree(String nom)
 	{
-		return "<html><img src=file:img/vert.png></img>"+nom+"</html>";
+		return "<html><img src=file:./img/vert.png></img>"+nom+"</html>";
 	}
 	
 	private String getHTMLBusy(String nom)
 	{
-		return "<html><img src=file:img/away.png></img>"+nom+"</html>";
+		return "<html><img src=file:./img/away.png></img>"+nom+"</html>";
 	}
 	
 	private void initMainConnection()
@@ -661,7 +661,7 @@ public class FrameDNC extends JFrame implements WindowListener,ActionListener, K
 	        }
 	        catch (IOException e)
 	        {
-	        	erreur("La connexion au serveur sur le port "+this.numPort+" a échoué\n"+e.getMessage(),3);
+	        	erreur("La connexion au serveur "+this.adresseServeur+" sur le port "+this.numPort+" a échoué\n"+e.getMessage(),3);
 	        }	
 	}
 	
